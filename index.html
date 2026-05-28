@@ -2,284 +2,192 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>FlightRadar Dark Clone</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<title>TV Streaming</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background: #0f1115;
-  color: #e0e0e0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #0a0a0a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.header {
+  padding: 16px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  text-align: center;
+}
+.header h2 { color: #ff3b30; }
+.container {
+  flex: 1;
+  display: flex;
   overflow: hidden;
 }
-.container { display: flex; height: 100vh; }
-.left-sidebar {
-  width: 340px; background: #1a1d23; border-right: 1px solid #2a2e35;
-  display: flex; flex-direction: column; overflow-y: auto;
+.player-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #000;
 }
-.panel { border-bottom: 1px solid #2a2e35; }
-.panel-header {
-  padding: 12px 16px; background: #1a1d23; font-size: 13px; font-weight: 600;
-  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+video {
+  width: 100%;
+  height: 100%;
+  background: #000;
 }
-.panel-header.live { background: #ff3b30; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 10px; }
-.flight-item {
-  padding: 12px 16px; border-bottom: 1px solid #2a2e35; cursor: pointer; transition: background 0.2s;
+.sidebar {
+  width: 300px;
+  background: #1a1a1a;
+  border-left: 1px solid #2a2a2a;
+  overflow-y: auto;
 }
-.flight-item:hover,.flight-item.active { background: #22252b; }
-.flight-item.rank { color: #8b8b8b; font-size: 12px; }
-.flight-item.flight-no { font-weight: 600; font-size: 14px; }
-.flight-item.route { font-size: 13px; color: #b0b0b0; margin-top: 4px; }
-.flight-item.stats { font-size: 12px; color: #8b8b8b; margin-top: 4px; }
-.airport-item { padding: 12px 16px; border-bottom: 1px solid #2a2e35; }
-.airport-item.name { font-weight: 600; font-size: 14px; }
-.airport-item.weather { font-size: 12px; color: #8b8b8b; margin-top: 4px; }
-.btn-primary {
-  width: calc(100% - 32px); margin: 16px; padding: 10px; background: #00c853;
-  color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;
+.channel {
+  padding: 12px 16px;
+  border-bottom: 1px solid #2a2a2a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.map-area { flex: 1; position: relative; }
-#map { height: 100%; width: 100%; filter: brightness(0.7) contrast(1.1); }
-.top-bar {
-  position: absolute; top: 0; left: 0; right: 0; height: 56px;
-  background: linear-gradient(to bottom, rgba(15,17,21,0.9), transparent);
-  display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000;
+.channel:hover { background: #2a2a2a; }
+.channel.active { background: #ff3b30; }
+.channel-logo {
+  width: 40px;
+  height: 30px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 4px;
 }
-.logo { font-size: 20px; font-weight: bold; color: #fff; }
-.search-box {
-  width: 300px; padding: 8px 12px; background: #1a1d23; border: 1px solid #2a2e35;
-  border-radius: 6px; color: #fff; outline: none;
+.channel-info { flex: 1; }
+.channel-name { font-weight: 600; font-size: 14px; }
+.channel-cat { font-size: 12px; color: #888; }
+.controls {
+  padding: 12px;
+  background: #1a1a1a;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
-.bottom-bar {
-  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: #1a1d23; border-radius: 12px; padding: 8px 16px; display: flex;
-  gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 1000;
+button {
+  padding: 8px 16px;
+  background: #ff3b30;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
 }
-.bottom-btn {
-  background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 12px;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+button:hover { background: #e0352b; }
+.status {
+  font-size: 13px;
+  color: #888;
+  margin-left: auto;
 }
-.bottom-btn:hover { color: #00c853; }
-.right-sidebar {
-  width: 320px; background: #1a1d23; border-left: 1px solid #2a2e35;
-  padding: 16px; overflow-y: auto;
+@media (max-width: 768px) {
+  .container { flex-direction: column; }
+  .sidebar { width: 100%; height: 200px; border-left: none; border-top: 1px solid #2a2a2a; }
 }
-.ad-box { background: #22252b; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-.ad-box.title { font-weight: 600; margin-bottom: 8px; }
-.ad-box.desc { font-size: 13px; color: #b0b0b0; line-height: 1.5; }
-.btn-green {
-  width: 100%; padding: 10px; background: #00c853; color: #fff; border: none;
-  border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 12px;
-}
-.leaflet-div-icon { background: none; border: none; }
-.plane-popup {
-  background: #1a1d23; color: #fff; padding: 8px; border-radius: 6px;
-  border: 1px solid #2a2e35; font-size: 13px;
-}
-.plane-popup b { color: #00c853; }
-.leaflet-popup-content-wrapper { background: #1a1d23; color: #fff; }
-.leaflet-popup-tip { background: #1a1d23; }
-@media (max-width: 1200px) {.right-sidebar { display: none; } }
-@media (max-width: 768px) {.left-sidebar { display: none; }.search-box { width: 200px; } }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="left-sidebar">
-    <div class="panel">
-      <div class="panel-header">Live Flights <span class="live">LIVE</span></div>
-      <div class="panel-content" id="trackedFlights"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header">Filters</div>
-      <div class="panel-content" style="padding: 12px;">
-        <label><input type="checkbox" id="filterGround" checked> Show Ground Traffic</label><br>
-        <label><input type="checkbox" id="filterCommercial" checked> Commercial Only</label>
-      </div>
-    </div>
-  </div>
-
-  <div class="map-area">
-    <div class="top-bar">
-      <div class="logo">✈️ FlightRadar</div>
-      <input type="text" class="search-box" id="searchBox" placeholder="Search flight number, ICAO24...">
-    </div>
-    <div id="map"></div>
-    <div class="bottom-bar">
-      <button class="bottom-btn" onclick="map.setZoom(5); map.setView([-6.2, 116])">🌍<span>Reset View</span></button>
-      <button class="bottom-btn" onclick="toggleUpdate()">⏯️<span id="toggleBtn">Pause</span></button>
-      <button class="bottom-btn" onclick="loadFlights()">🔄<span>Refresh</span></button>
-    </div>
-  </div>
-
-  <div class="right-sidebar" id="flightDetails">
-    <div class="ad-box">
-      <div class="title">Select a flight</div>
-      <div class="desc">Click on a plane or flight in the list to see details.</div>
-    </div>
-  </div>
+<div class="header">
+  <h2>📺 TV Streaming</h2>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<div class="container">
+  <div class="player-area">
+    <video id="video" controls autoplay></video>
+    <div class="controls">
+      <button id="playBtn">Play</button>
+      <button id="stopBtn">Stop</button>
+      <div class="status" id="status">Pilih channel untuk mulai</div>
+    </div>
+  </div>
+
+  <div class="sidebar" id="channelList"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-const map = L.map('map', { zoomControl: false }).setView([-6.2, 116], 5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+const video = document.getElementById('video');
+const status = document.getElementById('status');
+const channelList = document.getElementById('channelList');
+let hls = null;
+let currentChannel = null;
 
-let aircraftLayer = L.layerGroup().addTo(map);
-let aircraftData = [];
-let updateInterval;
-let isUpdating = true;
-let selectedAircraft = null;
+// Daftar channel. Ganti URL m3u8 nya sesuai channel yang mau kamu pakai
+const channels = [
+  { name: "Metro TV", cat: "News", logo: "", url: "https://cdn.live.sctv.co.id/metro-tv/smil:metro-tv.smil/chunklist.m3u8" },
+  { name: "RTV", cat: "Entertainment", logo: "", url: "https://live.rtv.co.id/hls/live.m3u8" },
+  { name: "CNN Indonesia", cat: "News", logo: "", url: "https://cnnindonesia2.akamaized.net/hls/live/2137556/cnnindo2/playlist.m3u8" },
+  { name: "TVRI Nasional", cat: "Public", logo: "", url: "https://live.tvrinasional.com/hls/tvrinasi.m3u8" }
+];
 
-const planeIcon = (heading) => L.divIcon({
-  html: `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ffd700" style="transform: rotate(${heading || 0}deg);">
-    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V21l3-1 3 1v-1.5L13 19v-5.5l8 2.5z"/>
-  </svg>`,
-  iconSize: [18, 18],
-  iconAnchor: [9, 9]
-});
-
-async function loadFlights() {
-  try {
-    // OpenSky API - ambil pesawat di area Asia Tenggara
-    const bounds = map.getBounds();
-    const url = `https://opensky-network.org/api/states/all?lamin=${bounds.getSouth()}&lomin=${bounds.getWest()}&lamax=${bounds.getNorth()}&lomax=${bounds.getEast()}`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (!data.states) return;
-
-    aircraftData = data.states.filter(s => s[5] && s[6]); // yang punya lat lon
-    renderAircraft();
-    renderFlightList();
-  } catch (e) {
-    console.error('Failed to load flights:', e);
-  }
-}
-
-function renderAircraft() {
-  aircraftLayer.clearLayers();
-  const showGround = document.getElementById('filterGround').checked;
-  const commercialOnly = document.getElementById('filterCommercial').checked;
-
-  aircraftData.forEach(aircraft => {
-    const [icao24, callsign, origin, timePos, lastContact, lon, lat, baroAlt, onGround, velocity, heading] = aircraft;
-
-    if (!showGround && onGround) return;
-    if (commercialOnly &&!callsign) return;
-
-    const marker = L.marker([lat, lon], { icon: planeIcon(heading) });
-
-    marker.bindPopup(`
-      <div class="plane-popup">
-        <b>${callsign? callsign.trim() : 'Unknown'}</b><br>
-        ICAO24: ${icao24}<br>
-        Alt: ${baroAlt? Math.round(baroAlt) + 'm' : 'N/A'}<br>
-        Speed: ${velocity? Math.round(velocity * 3.6) + ' km/h' : 'N/A'}<br>
-        Status: ${onGround? 'On Ground' : 'Airborne'}
+function loadChannels() {
+  channels.forEach((ch, i) => {
+    const div = document.createElement('div');
+    div.className = 'channel';
+    div.innerHTML = `
+      <div class="channel-logo">📺</div>
+      <div class="channel-info">
+        <div class="channel-name">${ch.name}</div>
+        <div class="channel-cat">${ch.cat}</div>
       </div>
-    `);
-
-    marker.on('click', () => selectAircraft(aircraft));
-    marker.on('mouseover', () => marker.openTooltip());
-    marker.bindTooltip(callsign? callsign.trim() : icao24, {
-      permanent: false,
-      direction: 'top',
-      className: 'plane-popup'
-    });
-
-    marker.aircraftData = aircraft;
-    aircraftLayer.addLayer(marker);
+    `;
+    div.onclick = () => playChannel(ch, div);
+    channelList.appendChild(div);
   });
 }
 
-function renderFlightList() {
-  const html = aircraftData.slice(0, 20).map((a, i) => {
-    const callsign = a[1]? a[1].trim() : 'Unknown';
-    const alt = a[7]? Math.round(a[7]) + 'm' : '-';
-    const speed = a[9]? Math.round(a[9] * 3.6) + ' km/h' : '-';
-    return `
-      <div class="flight-item" onclick="focusAircraft('${a[0]}')">
-        <div class="flight-no">${i+1}. ${callsign}</div>
-        <div class="route">ICAO24: ${a[0]}</div>
-        <div class="stats">${alt} • ${speed} • ${a[8]? 'Ground' : 'Airborne'}</div>
-      </div>
-    `;
-  }).join('');
-  document.getElementById('trackedFlights').innerHTML = html || '<div style="padding:16px">No flights in view</div>';
-}
+function playChannel(channel, element) {
+  document.querySelectorAll('.channel').forEach(c => c.classList.remove('active'));
+  element.classList.add('active');
+  
+  currentChannel = channel;
+  status.textContent = `Loading ${channel.name}...`;
 
-function selectAircraft(aircraft) {
-  selectedAircraft = aircraft;
-  const callsign = aircraft[1]? aircraft[1].trim() : 'Unknown';
-  document.getElementById('flightDetails').innerHTML = `
-    <div class="ad-box">
-      <div class="title">${callsign}</div>
-      <div class="desc">
-        ICAO24: ${aircraft[0]}<br>
-        Altitude: ${aircraft[7]? Math.round(aircraft[7]) + ' m' : 'N/A'}<br>
-        Speed: ${aircraft[9]? Math.round(aircraft[9] * 3.6) + ' km/h' : 'N/A'}<br>
-        Heading: ${aircraft[10]? Math.round(aircraft[10]) + '°' : 'N/A'}<br>
-        Status: ${aircraft[8]? 'On Ground' : 'Airborne'}<br>
-        Last update: ${new Date(aircraft[4] * 1000).toLocaleTimeString()}
-      </div>
-      <button class="btn-green" onclick="followAircraft('${aircraft[0]}')">Follow Flight</button>
-    </div>
-  `;
-}
-
-function focusAircraft(icao24) {
-  const marker = aircraftLayer.getLayers().find(m => m.aircraftData[0] === icao24);
-  if (marker) {
-    map.setView(marker.getLatLng(), 8);
-    marker.openPopup();
-    selectAircraft(marker.aircraftData);
-    document.querySelectorAll('.flight-item').forEach(el => el.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+  if (hls) {
+    hls.destroy();
+    hls = null;
   }
-}
 
-function followAircraft(icao24) {
-  const follow = setInterval(() => {
-    const marker = aircraftLayer.getLayers().find(m => m.aircraftData[0] === icao24);
-    if (marker) map.panTo(marker.getLatLng());
-    else clearInterval(follow);
-  }, 2000);
-}
-
-function toggleUpdate() {
-  isUpdating =!isUpdating;
-  document.getElementById('toggleBtn').textContent = isUpdating? 'Pause' : 'Resume';
-  if (isUpdating) {
-    updateInterval = setInterval(loadFlights, 10000);
+  if (Hls.isSupported()) {
+    hls = new Hls();
+    hls.loadSource(channel.url);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.play();
+      status.textContent = `Playing ${channel.name}`;
+    });
+    hls.on(Hls.Events.ERROR, (e, data) => {
+      status.textContent = `Error: ${data.details}`;
+    });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = channel.url;
+    video.addEventListener('loadedmetadata', () => {
+      video.play();
+      status.textContent = `Playing ${channel.name}`;
+    });
   } else {
-    clearInterval(updateInterval);
+    status.textContent = 'Browser tidak support HLS';
+    alert('Browser kamu nggak support HLS. Pakai Chrome atau Firefox terbaru.');
   }
 }
 
-document.getElementById('searchBox').addEventListener('input', (e) => {
-  const val = e.target.value.toLowerCase();
-  const filtered = aircraftData.filter(a =>
-    (a[1] && a[1].toLowerCase().includes(val)) ||
-    a[0].toLowerCase().includes(val)
-  );
-  aircraftData = filtered;
-  renderAircraft();
-  renderFlightList();
-});
+document.getElementById('playBtn').onclick = () => {
+  if (currentChannel) playChannel(currentChannel, document.querySelector('.channel.active'));
+  else video.play();
+};
 
-document.getElementById('filterGround').addEventListener('change', renderAircraft);
-document.getElementById('filterCommercial').addEventListener('change', renderAircraft);
+document.getElementById('stopBtn').onclick = () => {
+  video.pause();
+  if (hls) hls.destroy();
+  status.textContent = 'Stopped';
+};
 
-map.on('moveend', loadFlights);
-
-// Start
-loadFlights();
-updateInterval = setInterval(loadFlights, 10000);
+loadChannels();
 </script>
 </body>
 </html>
