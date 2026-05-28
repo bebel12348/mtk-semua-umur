@@ -3,111 +3,68 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TV Streaming</title>
+<title>TV Player</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #0a0a0a;
+  background: #000;
   color: #fff;
   display: flex;
-  flex-direction: column;
   height: 100vh;
 }
-.header {
-  padding: 16px;
-  background: #1a1a1a;
-  border-bottom: 1px solid #2a2a2a;
-  text-align: center;
-}
-.header h2 { color: #ff3b30; }
-.container {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-.player-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: #000;
-}
-video {
-  width: 100%;
-  height: 100%;
-  background: #000;
-}
+.player-area { flex: 1; display: flex; flex-direction: column; }
+video { width: 100%; height: 100%; background: #000; }
 .sidebar {
-  width: 300px;
-  background: #1a1a1a;
-  border-left: 1px solid #2a2a2a;
+  width: 280px;
+  background: #111;
+  border-left: 1px solid #222;
   overflow-y: auto;
 }
 .channel {
   padding: 12px 16px;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #222;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
-.channel:hover { background: #2a2a2a; }
-.channel.active { background: #ff3b30; }
-.channel-logo {
-  width: 40px;
-  height: 30px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 4px;
-}
-.channel-info { flex: 1; }
+.channel:hover { background: #1a1a1a; }
+.channel.active { background: #e50914; }
 .channel-name { font-weight: 600; font-size: 14px; }
-.channel-cat { font-size: 12px; color: #888; }
+.channel-desc { font-size: 12px; color: #888; margin-top: 2px; }
 .controls {
-  padding: 12px;
-  background: #1a1a1a;
+  padding: 10px;
+  background: #111;
   display: flex;
   gap: 8px;
   align-items: center;
 }
 button {
-  padding: 8px 16px;
-  background: #ff3b30;
+  padding: 8px 14px;
+  background: #e50914;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   color: #fff;
-  font-weight: 600;
   cursor: pointer;
+  font-weight: 600;
 }
-button:hover { background: #e0352b; }
-.status {
-  font-size: 13px;
-  color: #888;
-  margin-left: auto;
-}
+button:hover { background: #c40812; }
+.status { font-size: 12px; color: #888; margin-left: auto; }
 @media (max-width: 768px) {
-  .container { flex-direction: column; }
-  .sidebar { width: 100%; height: 200px; border-left: none; border-top: 1px solid #2a2a2a; }
+  body { flex-direction: column; }
+ .sidebar { width: 100%; height: 180px; border-left: none; border-top: 1px solid #222; }
 }
 </style>
 </head>
 <body>
-<div class="header">
-  <h2>📺 TV Streaming</h2>
-</div>
-
-<div class="container">
-  <div class="player-area">
-    <video id="video" controls autoplay></video>
-    <div class="controls">
-      <button id="playBtn">Play</button>
-      <button id="stopBtn">Stop</button>
-      <div class="status" id="status">Pilih channel untuk mulai</div>
-    </div>
+<div class="player-area">
+  <video id="video" controls autoplay muted></video>
+  <div class="controls">
+    <button id="playBtn">Play</button>
+    <button id="stopBtn">Stop</button>
+    <div class="status" id="status">Pilih channel</div>
   </div>
-
-  <div class="sidebar" id="channelList"></div>
 </div>
+
+<div class="sidebar" id="channelList"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
@@ -115,27 +72,31 @@ const video = document.getElementById('video');
 const status = document.getElementById('status');
 const channelList = document.getElementById('channelList');
 let hls = null;
-let currentChannel = null;
 
-// Daftar channel. Ganti URL m3u8 nya sesuai channel yang mau kamu pakai
+// Channel yang stabil & publik. Test dulu pakai ini
 const channels = [
-  { name: "Metro TV", cat: "News", logo: "", url: "https://cdn.live.sctv.co.id/metro-tv/smil:metro-tv.smil/chunklist.m3u8" },
-  { name: "RTV", cat: "Entertainment", logo: "", url: "https://live.rtv.co.id/hls/live.m3u8" },
-  { name: "CNN Indonesia", cat: "News", logo: "", url: "https://cnnindonesia2.akamaized.net/hls/live/2137556/cnnindo2/playlist.m3u8" },
-  { name: "TVRI Nasional", cat: "Public", logo: "", url: "https://live.tvrinasional.com/hls/tvrinasi.m3u8" }
+  {
+    name: "NASA TV UHD",
+    desc: "Space & Earth live",
+    url: "https://nasa-i.akamaihd.net/hls/live/253565/NASA-NASAHD2/master.m3u8"
+  },
+  {
+    name: "Big Buck Bunny Test",
+    desc: "Test stream HLS",
+    url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+  },
+  {
+    name: "BBC News",
+    desc: "News live",
+    url: "https://vs-hls-pushb-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_news_channel_hd/t=vs/hls/uk/manifest.m3u8"
+  }
 ];
 
 function loadChannels() {
   channels.forEach((ch, i) => {
     const div = document.createElement('div');
-    div.className = 'channel';
-    div.innerHTML = `
-      <div class="channel-logo">📺</div>
-      <div class="channel-info">
-        <div class="channel-name">${ch.name}</div>
-        <div class="channel-cat">${ch.cat}</div>
-      </div>
-    `;
+    div.className = 'channel' + (i === 0? ' active' : '');
+    div.innerHTML = `<div class="channel-name">${ch.name}</div><div class="channel-desc">${ch.desc}</div>`;
     div.onclick = () => playChannel(ch, div);
     channelList.appendChild(div);
   });
@@ -144,8 +105,7 @@ function loadChannels() {
 function playChannel(channel, element) {
   document.querySelectorAll('.channel').forEach(c => c.classList.remove('active'));
   element.classList.add('active');
-  
-  currentChannel = channel;
+
   status.textContent = `Loading ${channel.name}...`;
 
   if (hls) {
@@ -161,26 +121,19 @@ function playChannel(channel, element) {
       video.play();
       status.textContent = `Playing ${channel.name}`;
     });
-    hls.on(Hls.Events.ERROR, (e, data) => {
-      status.textContent = `Error: ${data.details}`;
+    hls.on(Hls.Events.ERROR, () => {
+      status.textContent = `Error: Link mati atau diblokir`;
     });
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
     video.src = channel.url;
-    video.addEventListener('loadedmetadata', () => {
-      video.play();
-      status.textContent = `Playing ${channel.name}`;
-    });
+    video.play();
+    status.textContent = `Playing ${channel.name}`;
   } else {
     status.textContent = 'Browser tidak support HLS';
-    alert('Browser kamu nggak support HLS. Pakai Chrome atau Firefox terbaru.');
   }
 }
 
-document.getElementById('playBtn').onclick = () => {
-  if (currentChannel) playChannel(currentChannel, document.querySelector('.channel.active'));
-  else video.play();
-};
-
+document.getElementById('playBtn').onclick = () => video.play();
 document.getElementById('stopBtn').onclick = () => {
   video.pause();
   if (hls) hls.destroy();
@@ -188,6 +141,7 @@ document.getElementById('stopBtn').onclick = () => {
 };
 
 loadChannels();
+playChannel(channels[0], document.querySelector('.channel'));
 </script>
 </body>
 </html>
