@@ -2,432 +2,384 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>FlightRadar X</title>
+<title>FlightRadar Dark Clone</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0a0e1a;
-  --glass: rgba(255,255,255,0.06);
-  --glass-border: rgba(255,255,255,0.12);
-  --accent: #00d4ff;
-  --accent2: #ff6b6b;
-  --text: #e8ecf2;
-  --text-dim: #8b94a7;
-}
-
 * { margin:0; padding:0; box-sizing:border-box; }
-
-body {
-  font-family: 'Outfit', sans-serif;
-  background: var(--bg);
-  color: var(--text);
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; 
+  background: #0f1115; 
+  color: #e0e0e0; 
   overflow: hidden;
-  background-image: 
-    radial-gradient(circle at 20% 20%, rgba(0,212,255,0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255,107,107,0.15) 0%, transparent 50%);
-  animation: bgMove 20s ease-in-out infinite alternate;
 }
 
-@keyframes bgMove {
- 0% { background-position: 0% 0%, 100% 100%; }
- 100% { background-position: 100% 100%, 0% 0%; }
-}
-
-.app {
+/* LAYOUT */
+.container {
   display: flex;
   height: 100vh;
-  gap: 16px;
-  padding: 16px;
 }
 
-.glass {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-}
-
-.sidebar {
-  width: 380px;
+/* LEFT SIDEBAR */
+.left-sidebar {
+  width: 340px;
+  background: #1a1d23;
+  border-right: 1px solid #2a2e35;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  animation: slideIn 0.6s cubic-bezier(0.23,1,0.32,1);
-}
-
-@keyframes slideIn {
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-.sidebar-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.logo {
-  font-size: 22px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), #00ff88);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
-}
-
-.search-box {
-  padding: 16px 20px;
-}
-
-.search-box input, .search-box select {
-  width: 100%;
-  padding: 12px 16px;
-  margin-top: 10px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  color: var(--text);
-  font-family: inherit;
-  font-size: 14px;
-  transition: all 0.3s;
-}
-
-.search-box input:focus, .search-box select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0,212,255,0.2);
-}
-
-.stats {
-  padding: 16px 24px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.stat-card {
-  padding: 12px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 12px;
-  text-align: center;
-}
-
-.stat-card .num {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.stat-card .label {
-  font-size: 11px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.aircraft-list {
-  flex: 1;
   overflow-y: auto;
-  padding: 8px;
 }
 
-.aircraft-list::-webkit-scrollbar {
-  width: 6px;
+.panel {
+  border-bottom: 1px solid #2a2e35;
 }
 
-.aircraft-list::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 10px;
-}
-
-.aircraft-row {
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
-  animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.aircraft-row:hover {
-  background: rgba(0,212,255,0.1);
-  border-color: var(--accent);
-  transform: translateX(4px);
-}
-
-.aircraft-row .callsign {
+.panel-header {
+  padding: 12px 16px;
+  background: #1a1d23;
+  font-size: 13px;
   font-weight: 600;
-  font-size: 15px;
-  color: var(--accent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
-.aircraft-row .info {
+.panel-header .live {
+  background: #ff3b30;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.panel-content {
+  padding: 0;
+}
+
+.flight-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #2a2e35;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.flight-item:hover {
+  background: #22252b;
+}
+
+.flight-item .rank {
+  color: #8b8b8b;
   font-size: 12px;
-  color: var(--text-dim);
+}
+
+.flight-item .flight-no {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.flight-item .route {
+  font-size: 13px;
+  color: #b0b0b0;
   margin-top: 4px;
 }
 
-.map-container {
-  flex: 1;
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  animation: slideInRight 0.8s cubic-bezier(0.23,1,0.32,1);
+.flight-item .stats {
+  font-size: 12px;
+  color: #8b8b8b;
+  margin-top: 4px;
 }
 
-@keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+.airport-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #2a2e35;
+}
+
+.airport-item .name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.airport-item .weather {
+  font-size: 12px;
+  color: #8b8b8b;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  width: calc(100% - 32px);
+  margin: 16px;
+  padding: 10px;
+  background: #00c853;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #00b248;
+}
+
+/* MAP AREA */
+.map-area {
+  flex: 1;
+  position: relative;
 }
 
 #map {
   height: 100%;
   width: 100%;
+  filter: brightness(0.7) contrast(1.1);
 }
 
-.fab {
+.top-bar {
   position: absolute;
-  bottom: 24px;
-  right: 24px;
-  z-index: 1000;
-  display: flex;
-  gap: 12px;
-}
-
-.fab button {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-border);
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  color: var(--text);
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-}
-
-.fab button:hover {
-  background: var(--accent);
-  color: #000;
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 12px 32px rgba(0,212,255,0.4);
-}
-
-.leaflet-popup-content-wrapper {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  color: var(--text);
-  border-radius: 16px;
-  border: 1px solid var(--glass-border);
-}
-
-.leaflet-popup-tip {
-  background: var(--glass);
-}
-
-.plane-icon {
-  filter: drop-shadow(0 0 8px rgba(0,212,255,0.6));
-}
-
-.loading {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: linear-gradient(to bottom, rgba(15,17,21,0.9), transparent);
   display: flex;
   align-items: center;
-  justify-content: center;
-  height: 100px;
-  color: var(--text-dim);
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
 }
 
-.loading::after {
-  content: '';
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--accent);
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-left: 10px;
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.search-box {
+  width: 300px;
+  padding: 8px 12px;
+  background: #1a1d23;
+  border: 1px solid #2a2e35;
+  border-radius: 6px;
+  color: #fff;
 }
 
-@media (max-width: 900px) {
-  .sidebar { width: 100%; position: absolute; z-index: 2000; height: 100%; }
-  .map-container { display: none; }
+.bottom-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1d23;
+  border-radius: 12px;
+  padding: 8px 16px;
+  display: flex;
+  gap: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.bottom-btn {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bottom-btn:hover {
+  color: #00c853;
+}
+
+/* RIGHT SIDEBAR */
+.right-sidebar {
+  width: 320px;
+  background: #1a1d23;
+  border-left: 1px solid #2a2e35;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.ad-box {
+  background: #22252b;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.ad-box .title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.ad-box .desc {
+  font-size: 13px;
+  color: #b0b0b0;
+  line-height: 1.5;
+}
+
+.btn-green {
+  width: 100%;
+  padding: 10px;
+  background: #00c853;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+/* PLANE ICON */
+.leaflet-div-icon {
+  background: none;
+  border: none;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .right-sidebar { display: none; }
+}
+@media (max-width: 768px) {
+  .left-sidebar { display: none; }
+  .search-box { width: 200px; }
 }
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="sidebar glass">
-    <div class="sidebar-header">
-      <div class="logo">FLIGHT RADAR X</div>
-    </div>
-    
-    <div class="search-box">
-      <input type="text" id="search" placeholder="Cari flight, ICAO, maskapai...">
-      <select id="filter">
-        <option value="all">Semua Penerbangan</option>
-        <option value="air">Sedang Terbang</option>
-        <option value="ground">Di Darat</option>
-      </select>
-    </div>
-
-    <div class="stats">
-      <div class="stat-card">
-        <div class="num" id="total">0</div>
-        <div class="label">Total</div>
+<div class="container">
+  <!-- LEFT SIDEBAR -->
+  <div class="left-sidebar">
+    <div class="panel">
+      <div class="panel-header">
+        Most tracked flights <span class="live">LIVE</span>
       </div>
-      <div class="stat-card">
-        <div class="num" id="air">0</div>
-        <div class="label">Airborne</div>
+      <div class="panel-content" id="trackedFlights">
+        <!-- diisi JS -->
       </div>
     </div>
 
-    <div class="aircraft-list" id="aircraftList">
-      <div class="loading">Loading aircraft data</div>
+    <div class="panel">
+      <div class="panel-header">
+        Airport disruptions <span class="live">LIVE</span>
+      </div>
+      <div class="panel-content" id="disruptions">
+        <!-- diisi JS -->
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">Bookmarks</div>
+      <div class="panel-content" style="padding: 16px;">
+        <p style="font-size: 13px; color: #b0b0b0;">
+          Create a free account to add bookmarks or upgrade for more items.
+        </p>
+        <button class="btn-primary">7-day free trial | Learn more</button>
+      </div>
     </div>
   </div>
 
-  <div class="map-container glass">
+  <!-- MAP AREA -->
+  <div class="map-area">
+    <div class="top-bar">
+      <div class="logo">✈️ flightradar24</div>
+      <input type="text" class="search-box" placeholder="Find flights, airports and more">
+    </div>
+
     <div id="map"></div>
-    <div class="fab">
-      <button onclick="fetchData()" title="Refresh">⟳</button>
-      <button onclick="toggleView()" title="Toggle View">🗺️</button>
+
+    <div class="bottom-bar">
+      <button class="bottom-btn">⚙️<span>Settings</span></button>
+      <button class="bottom-btn">🌤️<span>Weather</span></button>
+      <button class="bottom-btn">🔍<span>Filters</span></button>
+      <button class="bottom-btn">📊<span>Widgets</span></button>
+      <button class="bottom-btn">⏮️<span>Playback</span></button>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="right-sidebar">
+    <div class="ad-box">
+      <div class="title">It looks like you're using an ad blocker</div>
+      <div class="desc">Ads help keep Flightradar24 free. Disable your ad blocker or upgrade.</div>
+    </div>
+
+    <div class="ad-box">
+      <div class="title">Unlock 60+ premium features</div>
+      <div class="desc">Join over 1 million subscribers and enjoy longer flight history, 3D view, aviation weather and much more.</div>
+      <button class="btn-green">Try free for 7 days</button>
     </div>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-rotatedmarker@0.2.0/leaflet.rotatedMarker.js"></script>
 <script>
-const map = L.map('map', { zoomControl: false }).setView([-6.2, 106.8], 6);
-L.control.zoom({ position: 'bottomleft' }).addTo(map);
+const map = L.map('map', {
+  zoomControl: false
+}).setView([-6.2, 116], 5);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; CartoDB'
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
 }).addTo(map);
 
-let aircraftMarkers = [];
-let isSatellite = false;
+// DATA DUMMY
+const trackedFlights = [
+  {rank: 1, flight: "TOPCT25", type: "R135", alt: "7700", count: "2,084", route: "Omaha OFF - N/A"},
+  {rank: 2, flight: "OVRLD01", type: "Q4", alt: "", count: "1,107", route: "N/A - N/A"},
+  {rank: 3, flight: "KAC411", type: "KU411 A339", alt: "", count: "1,017", route: "Kuwait City KWI - Bangkok BKK"}
+];
 
-function createIcon(heading, color) {
-  return L.divIcon({
-    className: 'plane-icon',
-    html: `<svg width="28" height="28" viewBox="0 0 24 24" fill="${color}" style="transform: rotate(${heading || 0}deg); filter: drop-shadow(0 0 6px ${color});">
+const disruptions = [
+  {airport: "Kathmandu KTM", temp: "26°C", wind: "90° 10 kts", delay1: "3.3", delay2: "1.6"},
+  {airport: "Brisbane BNE", temp: "20°C", wind: "20° 6 kts", delay1: "1.5", delay2: "2.0"},
+  {airport: "Wellington WLG", temp: "12°C", wind: "170° 12 kts", delay1: "0.8", delay2: "2.2"}
+];
+
+// RENDER LEFT PANEL
+function renderTrackedFlights() {
+  const html = trackedFlights.map(f => `
+    <div class="flight-item">
+      <div class="rank">${f.rank}. ${f.flight} ${f.type} ${f.alt} <span style="float:right">${f.count} 👥</span></div>
+      <div class="route">${f.route}</div>
+    </div>
+  `).join('');
+  document.getElementById('trackedFlights').innerHTML = html;
+}
+
+function renderDisruptions() {
+  const html = disruptions.map(d => `
+    <div class="airport-item">
+      <div class="name">${d.airport}</div>
+      <div class="weather">☁️ ${d.temp} 💨 ${d.wind}</div>
+      <div class="weather">✈️ ${d.delay1} ✈️ ${d.delay2}</div>
+    </div>
+  `).join('');
+  document.getElementById('disruptions').innerHTML = html;
+}
+
+// RENDER PESAWAT DI MAP
+const planes = Array.from({length: 80}, (_, i) => ({
+  lat: -6.2 + (Math.random() - 0.5) * 15,
+  lon: 116 + (Math.random() - 0.5) * 25,
+  heading: Math.random() * 360
+}));
+
+planes.forEach(p => {
+  const icon = L.divIcon({
+    html: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#ffd700" style="transform: rotate(${p.heading}deg);">
       <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V21l3-1 3 1v-1.5L13 19v-5.5l8 2.5z"/>
     </svg>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14]
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
   });
-}
+  L.marker([p.lat, p.lon], {icon}).addTo(map);
+});
 
-// Data dummy biar jalan tanpa CORS
-const dummyData = Array.from({length: 80}, (_, i) => [
-  `icao${i}`,
-  `ID${100+i}`,
-  "WIII",
- 0,
- 106.8 + (Math.random()-0.5)*10,
-  -6.2 + (Math.random()-0.5)*8,
- 8000 + Math.random()*5000,
-  Math.random() > 0.8,
- 200 + Math.random()*300,
-  Math.random()*360
-]);
-
-function fetchData() {
-  document.getElementById('aircraftList').innerHTML = '<div class="loading">Loading aircraft data</div>';
-  
-  setTimeout(() => {
-    updateMap(dummyData);
-  }, 800);
-}
-
-function updateMap(states) {
-  const search = document.getElementById('search').value.toLowerCase();
-  const filter = document.getElementById('filter').value;
-  
-  aircraftMarkers.forEach(m => map.removeLayer(m));
-  aircraftMarkers = [];
-  
-  let stats = { total: 0, air: 0 };
-  let listHTML = '';
-
-  states.forEach(s => {
-    const [icao24, callsign, origin, time, lon, lat, alt, onGround, velocity, heading] = s;
-    if (!lat || !lon) return;
-
-    const callsignClean = callsign ? callsign.trim() : 'N/A';
-    const searchable = `${icao24} ${callsignClean}`.toLowerCase();
-
-    if (search && !searchable.includes(search)) return;
-    if (filter === 'air' && onGround) return;
-    if (filter === 'ground' && !onGround) return;
-
-    stats.total++;
-    if (!onGround) stats.air++;
-
-    const color = onGround ? '#ff6b6b' : '#00d4ff';
-    
-    const marker = L.marker([lat, lon], {
-      icon: createIcon(heading, color),
-    }).addTo(map).bindPopup(`
-      <b style="font-size:16px;">${callsignClean}</b><br>
-      <span style="color:var(--text-dim);">ICAO:</span> ${icao24}<br>
-      <span style="color:var(--text-dim);">Altitude:</span> ${alt ? Math.round(alt) + 'm' : 'N/A'}<br>
-      <span style="color:var(--text-dim);">Speed:</span> ${velocity ? Math.round(velocity * 3.6) + 'km/h' : 'N/A'}
-    `);
-    aircraftMarkers.push(marker);
-
-    listHTML += `<div class="aircraft-row" onclick="focusAircraft(${lat},${lon})">
-      <div class="callsign">${callsignClean}</div>
-      <div class="info">${alt ? Math.round(alt) + 'm' : 'N/A'} • ${velocity ? Math.round(velocity * 3.6) + 'km/h' : 'N/A'}</div>
-    </div>`;
-  });
-
-  document.getElementById('total').textContent = stats.total;
-  document.getElementById('air').textContent = stats.air;
-  document.getElementById('aircraftList').innerHTML = listHTML || '<div class="loading">No aircraft found</div>';
-}
-
-function focusAircraft(lat, lon) {
-  map.flyTo([lat, lon], 10, { duration: 1.5 });
-}
-
-function toggleView() {
-  isSatellite = !isSatellite;
-  map.eachLayer(layer => {
-    if (layer._url) map.removeLayer(layer);
-  });
-  
-  if (isSatellite) {
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(map);
-  } else {
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-  }
-}
-
-document.getElementById('search').oninput = fetchData;
-document.getElementById('filter').onchange = fetchData;
-
-fetchData();
-setInterval(fetchData, 15000);
+// INIT
+renderTrackedFlights();
+renderDisruptions();
 </script>
 </body>
 </html>
