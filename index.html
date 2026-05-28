@@ -7,379 +7,279 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; 
-  background: #0f1115; 
-  color: #e0e0e0; 
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  background: #0f1115;
+  color: #e0e0e0;
   overflow: hidden;
 }
-
-/* LAYOUT */
-.container {
-  display: flex;
-  height: 100vh;
-}
-
-/* LEFT SIDEBAR */
+.container { display: flex; height: 100vh; }
 .left-sidebar {
-  width: 340px;
-  background: #1a1d23;
-  border-right: 1px solid #2a2e35;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
+  width: 340px; background: #1a1d23; border-right: 1px solid #2a2e35;
+  display: flex; flex-direction: column; overflow-y: auto;
 }
-
-.panel {
-  border-bottom: 1px solid #2a2e35;
-}
-
+.panel { border-bottom: 1px solid #2a2e35; }
 .panel-header {
-  padding: 12px 16px;
-  background: #1a1d23;
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
+  padding: 12px 16px; background: #1a1d23; font-size: 13px; font-weight: 600;
+  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
 }
-
-.panel-header .live {
-  background: #ff3b30;
-  color: #fff;
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-}
-
-.panel-content {
-  padding: 0;
-}
-
+.panel-header.live { background: #ff3b30; color: #fff; padding: 2px 6px; border-radius: 3px; font-size: 10px; }
 .flight-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #2a2e35;
-  cursor: pointer;
-  transition: background 0.2s;
+  padding: 12px 16px; border-bottom: 1px solid #2a2e35; cursor: pointer; transition: background 0.2s;
 }
-
-.flight-item:hover {
-  background: #22252b;
-}
-
-.flight-item .rank {
-  color: #8b8b8b;
-  font-size: 12px;
-}
-
-.flight-item .flight-no {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.flight-item .route {
-  font-size: 13px;
-  color: #b0b0b0;
-  margin-top: 4px;
-}
-
-.flight-item .stats {
-  font-size: 12px;
-  color: #8b8b8b;
-  margin-top: 4px;
-}
-
-.airport-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #2a2e35;
-}
-
-.airport-item .name {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.airport-item .weather {
-  font-size: 12px;
-  color: #8b8b8b;
-  margin-top: 4px;
-}
-
+.flight-item:hover,.flight-item.active { background: #22252b; }
+.flight-item.rank { color: #8b8b8b; font-size: 12px; }
+.flight-item.flight-no { font-weight: 600; font-size: 14px; }
+.flight-item.route { font-size: 13px; color: #b0b0b0; margin-top: 4px; }
+.flight-item.stats { font-size: 12px; color: #8b8b8b; margin-top: 4px; }
+.airport-item { padding: 12px 16px; border-bottom: 1px solid #2a2e35; }
+.airport-item.name { font-weight: 600; font-size: 14px; }
+.airport-item.weather { font-size: 12px; color: #8b8b8b; margin-top: 4px; }
 .btn-primary {
-  width: calc(100% - 32px);
-  margin: 16px;
-  padding: 10px;
-  background: #00c853;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
+  width: calc(100% - 32px); margin: 16px; padding: 10px; background: #00c853;
+  color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;
 }
-
-.btn-primary:hover {
-  background: #00b248;
-}
-
-/* MAP AREA */
-.map-area {
-  flex: 1;
-  position: relative;
-}
-
-#map {
-  height: 100%;
-  width: 100%;
-  filter: brightness(0.7) contrast(1.1);
-}
-
+.map-area { flex: 1; position: relative; }
+#map { height: 100%; width: 100%; filter: brightness(0.7) contrast(1.1); }
 .top-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
+  position: absolute; top: 0; left: 0; right: 0; height: 56px;
   background: linear-gradient(to bottom, rgba(15,17,21,0.9), transparent);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 1000;
 }
-
-.logo {
-  font-size: 20px;
-  font-weight: bold;
-  color: #fff;
-}
-
+.logo { font-size: 20px; font-weight: bold; color: #fff; }
 .search-box {
-  width: 300px;
-  padding: 8px 12px;
-  background: #1a1d23;
-  border: 1px solid #2a2e35;
-  border-radius: 6px;
-  color: #fff;
+  width: 300px; padding: 8px 12px; background: #1a1d23; border: 1px solid #2a2e35;
+  border-radius: 6px; color: #fff; outline: none;
 }
-
 .bottom-bar {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1a1d23;
-  border-radius: 12px;
-  padding: 8px 16px;
-  display: flex;
-  gap: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  z-index: 1000;
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #1a1d23; border-radius: 12px; padding: 8px 16px; display: flex;
+  gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 1000;
 }
-
 .bottom-btn {
-  background: none;
-  border: none;
-  color: #e0e0e0;
-  cursor: pointer;
-  font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  background: none; border: none; color: #e0e0e0; cursor: pointer; font-size: 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
-
-.bottom-btn:hover {
-  color: #00c853;
-}
-
-/* RIGHT SIDEBAR */
+.bottom-btn:hover { color: #00c853; }
 .right-sidebar {
-  width: 320px;
-  background: #1a1d23;
-  border-left: 1px solid #2a2e35;
-  padding: 16px;
-  overflow-y: auto;
+  width: 320px; background: #1a1d23; border-left: 1px solid #2a2e35;
+  padding: 16px; overflow-y: auto;
 }
-
-.ad-box {
-  background: #22252b;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-
-.ad-box .title {
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.ad-box .desc {
-  font-size: 13px;
-  color: #b0b0b0;
-  line-height: 1.5;
-}
-
+.ad-box { background: #22252b; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.ad-box.title { font-weight: 600; margin-bottom: 8px; }
+.ad-box.desc { font-size: 13px; color: #b0b0b0; line-height: 1.5; }
 .btn-green {
-  width: 100%;
-  padding: 10px;
-  background: #00c853;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 12px;
+  width: 100%; padding: 10px; background: #00c853; color: #fff; border: none;
+  border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 12px;
 }
-
-/* PLANE ICON */
-.leaflet-div-icon {
-  background: none;
-  border: none;
+.leaflet-div-icon { background: none; border: none; }
+.plane-popup {
+  background: #1a1d23; color: #fff; padding: 8px; border-radius: 6px;
+  border: 1px solid #2a2e35; font-size: 13px;
 }
-
-/* RESPONSIVE */
-@media (max-width: 1200px) {
-  .right-sidebar { display: none; }
-}
-@media (max-width: 768px) {
-  .left-sidebar { display: none; }
-  .search-box { width: 200px; }
-}
+.plane-popup b { color: #00c853; }
+.leaflet-popup-content-wrapper { background: #1a1d23; color: #fff; }
+.leaflet-popup-tip { background: #1a1d23; }
+@media (max-width: 1200px) {.right-sidebar { display: none; } }
+@media (max-width: 768px) {.left-sidebar { display: none; }.search-box { width: 200px; } }
 </style>
 </head>
 <body>
 <div class="container">
-  <!-- LEFT SIDEBAR -->
   <div class="left-sidebar">
     <div class="panel">
-      <div class="panel-header">
-        Most tracked flights <span class="live">LIVE</span>
-      </div>
-      <div class="panel-content" id="trackedFlights">
-        <!-- diisi JS -->
-      </div>
+      <div class="panel-header">Live Flights <span class="live">LIVE</span></div>
+      <div class="panel-content" id="trackedFlights"></div>
     </div>
-
     <div class="panel">
-      <div class="panel-header">
-        Airport disruptions <span class="live">LIVE</span>
-      </div>
-      <div class="panel-content" id="disruptions">
-        <!-- diisi JS -->
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">Bookmarks</div>
-      <div class="panel-content" style="padding: 16px;">
-        <p style="font-size: 13px; color: #b0b0b0;">
-          Create a free account to add bookmarks or upgrade for more items.
-        </p>
-        <button class="btn-primary">7-day free trial | Learn more</button>
+      <div class="panel-header">Filters</div>
+      <div class="panel-content" style="padding: 12px;">
+        <label><input type="checkbox" id="filterGround" checked> Show Ground Traffic</label><br>
+        <label><input type="checkbox" id="filterCommercial" checked> Commercial Only</label>
       </div>
     </div>
   </div>
 
-  <!-- MAP AREA -->
   <div class="map-area">
     <div class="top-bar">
-      <div class="logo">✈️ flightradar24</div>
-      <input type="text" class="search-box" placeholder="Find flights, airports and more">
+      <div class="logo">✈️ FlightRadar</div>
+      <input type="text" class="search-box" id="searchBox" placeholder="Search flight number, ICAO24...">
     </div>
-
     <div id="map"></div>
-
     <div class="bottom-bar">
-      <button class="bottom-btn">⚙️<span>Settings</span></button>
-      <button class="bottom-btn">🌤️<span>Weather</span></button>
-      <button class="bottom-btn">🔍<span>Filters</span></button>
-      <button class="bottom-btn">📊<span>Widgets</span></button>
-      <button class="bottom-btn">⏮️<span>Playback</span></button>
+      <button class="bottom-btn" onclick="map.setZoom(5); map.setView([-6.2, 116])">🌍<span>Reset View</span></button>
+      <button class="bottom-btn" onclick="toggleUpdate()">⏯️<span id="toggleBtn">Pause</span></button>
+      <button class="bottom-btn" onclick="loadFlights()">🔄<span>Refresh</span></button>
     </div>
   </div>
 
-  <!-- RIGHT SIDEBAR -->
-  <div class="right-sidebar">
+  <div class="right-sidebar" id="flightDetails">
     <div class="ad-box">
-      <div class="title">It looks like you're using an ad blocker</div>
-      <div class="desc">Ads help keep Flightradar24 free. Disable your ad blocker or upgrade.</div>
-    </div>
-
-    <div class="ad-box">
-      <div class="title">Unlock 60+ premium features</div>
-      <div class="desc">Join over 1 million subscribers and enjoy longer flight history, 3D view, aviation weather and much more.</div>
-      <button class="btn-green">Try free for 7 days</button>
+      <div class="title">Select a flight</div>
+      <div class="desc">Click on a plane or flight in the list to see details.</div>
     </div>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const map = L.map('map', {
-  zoomControl: false
-}).setView([-6.2, 116], 5);
-
+const map = L.map('map', { zoomControl: false }).setView([-6.2, 116], 5);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
 
-// DATA DUMMY
-const trackedFlights = [
-  {rank: 1, flight: "TOPCT25", type: "R135", alt: "7700", count: "2,084", route: "Omaha OFF - N/A"},
-  {rank: 2, flight: "OVRLD01", type: "Q4", alt: "", count: "1,107", route: "N/A - N/A"},
-  {rank: 3, flight: "KAC411", type: "KU411 A339", alt: "", count: "1,017", route: "Kuwait City KWI - Bangkok BKK"}
-];
+let aircraftLayer = L.layerGroup().addTo(map);
+let aircraftData = [];
+let updateInterval;
+let isUpdating = true;
+let selectedAircraft = null;
 
-const disruptions = [
-  {airport: "Kathmandu KTM", temp: "26°C", wind: "90° 10 kts", delay1: "3.3", delay2: "1.6"},
-  {airport: "Brisbane BNE", temp: "20°C", wind: "20° 6 kts", delay1: "1.5", delay2: "2.0"},
-  {airport: "Wellington WLG", temp: "12°C", wind: "170° 12 kts", delay1: "0.8", delay2: "2.2"}
-];
-
-// RENDER LEFT PANEL
-function renderTrackedFlights() {
-  const html = trackedFlights.map(f => `
-    <div class="flight-item">
-      <div class="rank">${f.rank}. ${f.flight} ${f.type} ${f.alt} <span style="float:right">${f.count} 👥</span></div>
-      <div class="route">${f.route}</div>
-    </div>
-  `).join('');
-  document.getElementById('trackedFlights').innerHTML = html;
-}
-
-function renderDisruptions() {
-  const html = disruptions.map(d => `
-    <div class="airport-item">
-      <div class="name">${d.airport}</div>
-      <div class="weather">☁️ ${d.temp} 💨 ${d.wind}</div>
-      <div class="weather">✈️ ${d.delay1} ✈️ ${d.delay2}</div>
-    </div>
-  `).join('');
-  document.getElementById('disruptions').innerHTML = html;
-}
-
-// RENDER PESAWAT DI MAP
-const planes = Array.from({length: 80}, (_, i) => ({
-  lat: -6.2 + (Math.random() - 0.5) * 15,
-  lon: 116 + (Math.random() - 0.5) * 25,
-  heading: Math.random() * 360
-}));
-
-planes.forEach(p => {
-  const icon = L.divIcon({
-    html: `<svg width="16" height="16" viewBox="0 0 24 24" fill="#ffd700" style="transform: rotate(${p.heading}deg);">
-      <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V21l3-1 3 1v-1.5L13 19v-5.5l8 2.5z"/>
-    </svg>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8]
-  });
-  L.marker([p.lat, p.lon], {icon}).addTo(map);
+const planeIcon = (heading) => L.divIcon({
+  html: `<svg width="18" height="18" viewBox="0 0 24 24" fill="#ffd700" style="transform: rotate(${heading || 0}deg);">
+    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V21l3-1 3 1v-1.5L13 19v-5.5l8 2.5z"/>
+  </svg>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9]
 });
 
-// INIT
-renderTrackedFlights();
-renderDisruptions();
+async function loadFlights() {
+  try {
+    // OpenSky API - ambil pesawat di area Asia Tenggara
+    const bounds = map.getBounds();
+    const url = `https://opensky-network.org/api/states/all?lamin=${bounds.getSouth()}&lomin=${bounds.getWest()}&lamax=${bounds.getNorth()}&lomax=${bounds.getEast()}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.states) return;
+
+    aircraftData = data.states.filter(s => s[5] && s[6]); // yang punya lat lon
+    renderAircraft();
+    renderFlightList();
+  } catch (e) {
+    console.error('Failed to load flights:', e);
+  }
+}
+
+function renderAircraft() {
+  aircraftLayer.clearLayers();
+  const showGround = document.getElementById('filterGround').checked;
+  const commercialOnly = document.getElementById('filterCommercial').checked;
+
+  aircraftData.forEach(aircraft => {
+    const [icao24, callsign, origin, timePos, lastContact, lon, lat, baroAlt, onGround, velocity, heading] = aircraft;
+
+    if (!showGround && onGround) return;
+    if (commercialOnly &&!callsign) return;
+
+    const marker = L.marker([lat, lon], { icon: planeIcon(heading) });
+
+    marker.bindPopup(`
+      <div class="plane-popup">
+        <b>${callsign? callsign.trim() : 'Unknown'}</b><br>
+        ICAO24: ${icao24}<br>
+        Alt: ${baroAlt? Math.round(baroAlt) + 'm' : 'N/A'}<br>
+        Speed: ${velocity? Math.round(velocity * 3.6) + ' km/h' : 'N/A'}<br>
+        Status: ${onGround? 'On Ground' : 'Airborne'}
+      </div>
+    `);
+
+    marker.on('click', () => selectAircraft(aircraft));
+    marker.on('mouseover', () => marker.openTooltip());
+    marker.bindTooltip(callsign? callsign.trim() : icao24, {
+      permanent: false,
+      direction: 'top',
+      className: 'plane-popup'
+    });
+
+    marker.aircraftData = aircraft;
+    aircraftLayer.addLayer(marker);
+  });
+}
+
+function renderFlightList() {
+  const html = aircraftData.slice(0, 20).map((a, i) => {
+    const callsign = a[1]? a[1].trim() : 'Unknown';
+    const alt = a[7]? Math.round(a[7]) + 'm' : '-';
+    const speed = a[9]? Math.round(a[9] * 3.6) + ' km/h' : '-';
+    return `
+      <div class="flight-item" onclick="focusAircraft('${a[0]}')">
+        <div class="flight-no">${i+1}. ${callsign}</div>
+        <div class="route">ICAO24: ${a[0]}</div>
+        <div class="stats">${alt} • ${speed} • ${a[8]? 'Ground' : 'Airborne'}</div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('trackedFlights').innerHTML = html || '<div style="padding:16px">No flights in view</div>';
+}
+
+function selectAircraft(aircraft) {
+  selectedAircraft = aircraft;
+  const callsign = aircraft[1]? aircraft[1].trim() : 'Unknown';
+  document.getElementById('flightDetails').innerHTML = `
+    <div class="ad-box">
+      <div class="title">${callsign}</div>
+      <div class="desc">
+        ICAO24: ${aircraft[0]}<br>
+        Altitude: ${aircraft[7]? Math.round(aircraft[7]) + ' m' : 'N/A'}<br>
+        Speed: ${aircraft[9]? Math.round(aircraft[9] * 3.6) + ' km/h' : 'N/A'}<br>
+        Heading: ${aircraft[10]? Math.round(aircraft[10]) + '°' : 'N/A'}<br>
+        Status: ${aircraft[8]? 'On Ground' : 'Airborne'}<br>
+        Last update: ${new Date(aircraft[4] * 1000).toLocaleTimeString()}
+      </div>
+      <button class="btn-green" onclick="followAircraft('${aircraft[0]}')">Follow Flight</button>
+    </div>
+  `;
+}
+
+function focusAircraft(icao24) {
+  const marker = aircraftLayer.getLayers().find(m => m.aircraftData[0] === icao24);
+  if (marker) {
+    map.setView(marker.getLatLng(), 8);
+    marker.openPopup();
+    selectAircraft(marker.aircraftData);
+    document.querySelectorAll('.flight-item').forEach(el => el.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+  }
+}
+
+function followAircraft(icao24) {
+  const follow = setInterval(() => {
+    const marker = aircraftLayer.getLayers().find(m => m.aircraftData[0] === icao24);
+    if (marker) map.panTo(marker.getLatLng());
+    else clearInterval(follow);
+  }, 2000);
+}
+
+function toggleUpdate() {
+  isUpdating =!isUpdating;
+  document.getElementById('toggleBtn').textContent = isUpdating? 'Pause' : 'Resume';
+  if (isUpdating) {
+    updateInterval = setInterval(loadFlights, 10000);
+  } else {
+    clearInterval(updateInterval);
+  }
+}
+
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  const val = e.target.value.toLowerCase();
+  const filtered = aircraftData.filter(a =>
+    (a[1] && a[1].toLowerCase().includes(val)) ||
+    a[0].toLowerCase().includes(val)
+  );
+  aircraftData = filtered;
+  renderAircraft();
+  renderFlightList();
+});
+
+document.getElementById('filterGround').addEventListener('change', renderAircraft);
+document.getElementById('filterCommercial').addEventListener('change', renderAircraft);
+
+map.on('moveend', loadFlights);
+
+// Start
+loadFlights();
+updateInterval = setInterval(loadFlights, 10000);
 </script>
 </body>
 </html>
